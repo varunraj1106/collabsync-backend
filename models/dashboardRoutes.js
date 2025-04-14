@@ -1,10 +1,20 @@
-const express = require('express');
-const router = express.Router();
-const { protect } = require('../middlewares/auth');
+// File: models/Task.js
+const mongoose = require('mongoose');
 
-// Protected dashboard route
-router.get('/', protect, (req, res) => {
-  res.json({ message: `Welcome back, ${req.user.email}!` });
+const taskSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ['todo', 'inprogress', 'done'],
+    default: 'todo'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
-module.exports = router;
+module.exports = mongoose.model('Task', taskSchema);
