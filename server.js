@@ -7,9 +7,12 @@ const connectDB = require('./config/db');
 const app = express();
 const port = process.env.PORT || 3019;
 
-// ✅ Enable CORS for Vercel frontend
+// ✅ Enable CORS for Vercel frontend (both production and preview)
 app.use(cors({
-  origin: 'https://collabsync-frontend.vercel.app',
+  origin: [
+    'https://collabsync-frontend.vercel.app',
+    'https://collabsync-frontend-git-main-varunraj-kadams-projects.vercel.app'
+  ],
   credentials: true
 }));
 
@@ -37,11 +40,10 @@ app.get('/health', (req, res) => {
   res.send("✅ Server is healthy!");
 });
 
-// ✅ Root route for health check or basic info
+// ✅ Root route for basic info
 app.get("/", (req, res) => {
   res.send("✅ Backend API is running and reachable.");
 });
-
 
 // ✅ Handle form submission from frontend
 app.post('/post', async (req, res) => {
