@@ -37,15 +37,11 @@ app.get('/health', (req, res) => {
   res.send("✅ Server is healthy!");
 });
 
-// ✅ Redirect root to index.html
+// ✅ Root route for health check or basic info
 app.get("/", (req, res) => {
-  res.redirect("/index");
+  res.send("✅ Backend API is running and reachable.");
 });
 
-// ✅ Serve index.html
-app.get("/index", (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
-});
 
 // ✅ Handle form submission from frontend
 app.post('/post', async (req, res) => {
