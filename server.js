@@ -2,7 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const connectDB = require('./config/db'); // ⬅️ DB connection module
-const port = 3019;
+const port = process.env.PORT || 3019;
+
 
 const app = express();
 
