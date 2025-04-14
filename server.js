@@ -19,7 +19,7 @@ connectDB();
 // ✅ Middleware
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json()); // Optional: if you use JSON in frontend fetch()
+app.use(express.json()); // Required for handling JSON from fetch()
 
 // ✅ Define Schema
 const userSchema = new mongoose.Schema({
@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
 // ✅ Create model
 const User = mongoose.model("User", userSchema);
 
-// ✅ Health check route (optional)
+// ✅ Health check route
 app.get('/health', (req, res) => {
   res.send("✅ Server is healthy!");
 });
@@ -47,23 +47,23 @@ app.get("/index", (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-// ✅ Handle form submission
+// ✅ Handle form submission from frontend
 app.post('/post', async (req, res) => {
-  const { regd_no, name, email, branch } = req.body;
+  const { emp_id, name, department, email } = req.body;
 
   try {
     const user = new User({
-      regd_no,
+      regd_no: emp_id,
       name,
       email,
-      branch
+      branch: department
     });
     await user.save();
     console.log("✅ User saved:", user);
-    res.send("✅ Form Submission Successful");
+    res.status(200).json({ message: "✅ Form Submission Successful" });
   } catch (error) {
     console.error("❌ Error saving user:", error);
-    res.status(500).send("Server Error");
+    res.status(500).json({ message: "❌ Server Error" });
   }
 });
 
