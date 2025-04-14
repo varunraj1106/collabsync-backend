@@ -1,18 +1,25 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 const path = require('path');
-const connectDB = require('./config/db'); // ⬅️ DB connection module
-const port = process.env.PORT || 3019;
-
+const connectDB = require('./config/db');
 
 const app = express();
+const port = process.env.PORT || 3019;
+
+// ✅ Enable CORS for Vercel frontend
+app.use(cors({
+  origin: 'https://collabsync-frontend.vercel.app',
+  credentials: true
+}));
 
 // ✅ Connect to MongoDB Atlas
-connectDB(); // ⬅️ Call the connection function
+connectDB();
 
-// ✅ Serve static files (CSS, JS, images)
+// ✅ Middleware
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); // Optional: if you use JSON in frontend fetch()
 
 // ✅ Define Schema
 const userSchema = new mongoose.Schema({
@@ -25,12 +32,17 @@ const userSchema = new mongoose.Schema({
 // ✅ Create model
 const User = mongoose.model("User", userSchema);
 
-// ✅ Redirect root to signup page
+// ✅ Health check route (optional)
+app.get('/health', (req, res) => {
+  res.send("✅ Server is healthy!");
+});
+
+// ✅ Redirect root to index.html
 app.get("/", (req, res) => {
   res.redirect("/index");
 });
 
-// ✅ Serve Signup.html
+// ✅ Serve index.html
 app.get("/index", (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
@@ -57,5 +69,5 @@ app.post('/post', async (req, res) => {
 
 // ✅ Start the server
 app.listen(port, () => {
-  console.log(`🚀 Server Started on http://localhost:${port}`);
+  console.log(`🚀 Server running on port ${port}`);
 });
