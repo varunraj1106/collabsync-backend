@@ -1,3 +1,4 @@
+// File: server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -7,7 +8,7 @@ const connectDB = require('./config/db');
 const app = express();
 const port = process.env.PORT || 3019;
 
-// ✅ Enable CORS for Vercel frontend (both production and preview)
+// ✅ Enable CORS for both production and preview Vercel frontend
 app.use(cors({
   origin: [
     'https://collabsync-frontend.vercel.app',
@@ -22,30 +23,27 @@ connectDB();
 // ✅ Middleware
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json()); // Required for handling JSON from fetch()
+app.use(express.json());
 
-// ✅ Define Schema
-const userSchema = new mongoose.Schema({
-  regd_no: String,
-  name: String,
-  email: String,
-  branch: String
-});
+// ✅ Models
+const User = require('./models/User');
+const Task = require('./models/Task');
 
-// ✅ Create model
-const User = mongoose.model("User", userSchema);
+// ✅ Routes
+const taskRoutes = require('./routes/taskRoutes');
+app.use('/api/tasks', taskRoutes);
 
-// ✅ Health check route
+// ✅ Health check
 app.get('/health', (req, res) => {
   res.send("✅ Server is healthy!");
 });
 
-// ✅ Root route for basic info
-app.get("/", (req, res) => {
+// ✅ Root route
+app.get('/', (req, res) => {
   res.send("✅ Backend API is running and reachable.");
 });
 
-// ✅ Handle form submission from frontend
+// ✅ Handle registration
 app.post('/post', async (req, res) => {
   const { emp_id, name, department, email } = req.body;
 
@@ -65,7 +63,7 @@ app.post('/post', async (req, res) => {
   }
 });
 
-// ✅ Start the server
+// ✅ Start server
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
 });
