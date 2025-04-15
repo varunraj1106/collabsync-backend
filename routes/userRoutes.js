@@ -11,7 +11,8 @@ router.get('/available/:managerId', async (req, res) => {
   try {
     const users = await User.find({
       managerId: null,
-      _id: { $not: /^MM/, $ne: managerId } // Exclude managers and the requesting manager
+      role: 'employee',
+      _id: { $ne: managerId } // Exclude the manager himself/herself
     });
     res.json(users);
   } catch (err) {
@@ -26,7 +27,6 @@ router.patch('/assign', async (req, res) => {
 
   try {
     const employee = await User.findById(empId);
-
     if (!employee) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -47,7 +47,6 @@ router.patch('/unassign', async (req, res) => {
 
   try {
     const user = await User.findByIdAndUpdate(empId, { managerId: null }, { new: true });
-
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -72,7 +71,7 @@ router.get('/assigned/:managerId', async (req, res) => {
   }
 });
 
-// ✅ GET all users except the current manager (for general dashboard listings)
+// ✅ GET all users except the current manager (for dashboard)
 router.get('/all', async (req, res) => {
   const managerId = req.query.managerId;
 
