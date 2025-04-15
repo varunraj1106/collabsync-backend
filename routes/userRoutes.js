@@ -3,21 +3,27 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 
-// ✅ GET users available for assignment (not assigned & not a manager & not self)
-router.get('/users/available/:managerId', async (req, res) => {
-  const { managerId } = req.params;
+router.patch('/users/assign', async (req, res) => {
+  const { empId, managerId } = req.body;
 
   try {
-    const users = await User.find({
-      managerId: null,
-      _id: { $not: /^MM/, $ne: managerId } // Exclude managers and self
-    });
-    res.json(users);
+    const updatedUser = await User.findByIdAndUpdate(
+      empId,
+      { managerId },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({ message: 'User assigned successfully', user: updatedUser });
   } catch (err) {
-    console.error('❌ Error fetching assignable users:', err);
-    res.status(500).json({ message: 'Server error fetching available users' });
+    console.error('❌ Error assigning user:', err);
+    res.status(500).json({ message: 'Error assigning manager' });
   }
 });
+
 
 // ✅ POST assign employee to a manager
 router.post('/users/assign', async (req, res) => {
