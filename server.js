@@ -1,4 +1,5 @@
 // File: server.js
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -116,5 +117,3 @@ app.get('/health', (req, res) => {
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
 });
-
-
