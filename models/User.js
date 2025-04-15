@@ -2,9 +2,11 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
-  name:     { type: String, required: true },
-  email:    { type: String, required: true, unique: true },
-  password: { type: String, required: true } // ✅ Include the password field
+  _id: { type: String, required: true }, // employee ID as primary key
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  branch: { type: String, required: true }
 });
 
 // ✅ Hash password before saving
@@ -14,7 +16,7 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-// ✅ Add password comparison method
+// ✅ Password comparison method
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
