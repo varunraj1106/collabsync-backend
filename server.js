@@ -43,13 +43,13 @@ app.get('/', (req, res) => {
   res.send("✅ Backend API is running and reachable.");
 });
 
-// ✅ Handle registration
+// ✅ Handle registration (now includes password)
 app.post('/post', async (req, res) => {
   const { emp_id, name, department, email, password } = req.body;
 
   try {
     if (!password) {
-      return res.status(400).json({ message: "Password is required" });
+      return res.status(400).json({ message: "Password is required." });
     }
 
     const user = new User({
@@ -57,7 +57,7 @@ app.post('/post', async (req, res) => {
       name,
       email,
       branch: department,
-      password  // ✅ will be hashed automatically via schema pre-save hook
+      password  // ✅ Will be hashed via pre-save hook in User model
     });
 
     await user.save();
