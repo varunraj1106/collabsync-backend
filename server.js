@@ -1,3 +1,4 @@
+// File: server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -7,7 +8,7 @@ const connectDB = require('./config/db');
 const app = express();
 const port = process.env.PORT || 3019;
 
-// CORS for frontend access
+// ✅ Enable CORS for Vercel frontend
 app.use(cors({
   origin: [
     'https://collabsync-frontend.vercel.app',
@@ -16,55 +17,65 @@ app.use(cors({
   credentials: true
 }));
 
-// Connect DB
+// ✅ Connect to MongoDB Atlas
 connectDB();
+
+// ✅ Middleware
+app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// Models
+// ✅ Models
 const User = require('./models/User');
 const Task = require('./models/Task');
-const Group = require('./models/Group'); // ✅ New
 
-// Routes
+// ✅ Routes
 const taskRoutes = require('./routes/taskRoutes');
 app.use('/api/tasks', taskRoutes);
 
-// API for group creation
-app.post('/api/groups', async (req, res) => {
-  const { name, managerId, members } = req.body;
+// ✅ Health check
+app.get('/health', (req, res) => {
+  res.send("✅ Server is healthy!");
+});
 
-  if (!name || !managerId || !Array.isArray(members)) {
-    return res.status(400).json({ message: 'Invalid group input.' });
-  }
+// ✅ Root route
+app.get('/', (req, res) => {
+  res.send("✅ Backend API is running and reachable.");
+});
+
+// ✅ Handle registration (emp_id used as primary key)
+app.post('/post', async (req, res) => {
+  const { emp_id, name, department, email, password } = req.body;
 
   try {
-    const group = new Group({ name, manager: managerId, members });
-    await group.save();
-    res.status(200).json({ message: '✅ Group created', group });
+    if (!emp_id || !name || !department || !email || !password) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    const user = new User({
+      _id: emp_id, // emp_id is primary key
+      name,
+      email,
+      password,
+      branch: department
+    });
+
+    await user.save();
+    console.log("✅ User saved:", user);
+    res.status(200).json({ message: "✅ Form Submission Successful" });
+
   } catch (error) {
-    console.error('❌ Error creating group:', error);
-    res.status(500).json({ message: '❌ Server error' });
+    console.error("❌ Error saving user:", error);
+
+    if (error.code === 11000) {
+      return res.status(409).json({ message: "User with this Employee ID or Email already exists." });
+    }
+
+    res.status(500).json({ message: "❌ Server Error" });
   }
 });
 
-// API to get groups by manager
-app.get('/api/groups', async (req, res) => {
-  const { managerId } = req.query;
-
-  try {
-    const groups = await Group.find({ manager: managerId });
-    res.status(200).json(groups);
-  } catch (error) {
-    console.error('❌ Error fetching groups:', error);
-    res.status(500).json({ message: '❌ Server error' });
-  }
-});
-
-app.get('/health', (req, res) => res.send("✅ Server is healthy!"));
-app.get('/', (req, res) => res.send("✅ Backend API running."));
-
+// ✅ Start server
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
 });
