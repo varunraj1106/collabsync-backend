@@ -39,6 +39,24 @@ router.patch('/users/assign', async (req, res) => {
   }
 });
 
+// ✅ PATCH unassign employee from manager
+router.patch('/users/unassign', async (req, res) => {
+  const { empId } = req.body;
+
+  try {
+    const user = await User.findByIdAndUpdate(empId, { managerId: null }, { new: true });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'Employee unassigned successfully', user });
+  } catch (err) {
+    console.error('❌ Error unassigning user:', err);
+    res.status(500).json({ message: 'Error unassigning user' });
+  }
+});
+
 // ✅ GET employees already assigned to this manager
 router.get('/users/assigned/:managerId', async (req, res) => {
   const { managerId } = req.params;
@@ -66,5 +84,3 @@ router.get('/users/all', async (req, res) => {
 });
 
 module.exports = router;
-
-
