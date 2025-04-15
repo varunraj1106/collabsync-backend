@@ -9,6 +9,7 @@ const connectDB = require('./config/db');
 // Load models
 const User = require('./models/User');
 const Task = require('./models/Task');
+const Group = require('./models/Group');
 
 const app = express();
 const port = process.env.PORT || 3019;
@@ -33,8 +34,11 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 // ✅ Routes
 const taskRoutes = require('./routes/taskRoutes');
 const userRoutes = require('./routes/userRoutes');
+const groupRoutes = require('./routes/groupRoutes');
+
 app.use('/api/tasks', taskRoutes);
-app.use('/api', userRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/groups', groupRoutes);
 
 // ✅ Login route
 app.post('/api/login', async (req, res) => {
@@ -90,9 +94,6 @@ app.post('/post', async (req, res) => {
     res.status(500).json({ message: '❌ Server Error' });
   }
 });
-
-const groupRoutes = require('./routes/groupRoutes');
-app.use('/api/groups', groupRoutes);
 
 // ✅ Root route
 app.get('/', (req, res) => {
