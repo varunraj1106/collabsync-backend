@@ -32,7 +32,7 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // ✅ Routes
 const taskRoutes = require('./routes/taskRoutes');
-const userRoutes = require('./routes/userRoutes'); // ✅ Manager assignment & user routes
+const userRoutes = require('./routes/userRoutes'); // ✅ User management (assignments, filters)
 app.use('/api/tasks', taskRoutes);
 app.use('/api', userRoutes); // ✅ Mount user routes
 
@@ -66,7 +66,7 @@ app.post('/post', async (req, res) => {
     }
 
     const user = new User({
-      _id: emp_id, // emp_id becomes _id
+      _id: emp_id,
       name,
       email,
       password,
@@ -102,3 +102,4 @@ app.get('/health', (req, res) => {
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
 });
+
