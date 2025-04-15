@@ -2,10 +2,13 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 
-// ✅ GET all unassigned users (no manager)
+// ✅ GET all unassigned users (not assigned to a manager and not a manager themselves)
 router.get('/users/unassigned', async (req, res) => {
   try {
-    const users = await User.find({ managerId: null, _id: { $not: /^MM/ } });
+    const users = await User.find({
+      managerId: null,
+      _id: { $not: /^MM/ } // exclude managers
+    });
     res.json(users);
   } catch (err) {
     console.error('❌ Error fetching unassigned users:', err);
@@ -28,16 +31,17 @@ router.patch('/users/assign-manager', async (req, res) => {
 
     res.json({ message: 'User assigned successfully', user });
   } catch (err) {
+    console.error('❌ Error assigning manager:', err);
     res.status(500).json({ message: 'Error assigning manager' });
   }
 });
 
-// ✅ GET all users except the current manager
+// ✅ GET all users excluding the currently logged-in manager
 router.get('/users/all', async (req, res) => {
-  const managerId = req.query.managerId; // Expecting ?managerId=MM101
+  const managerId = req.query.managerId;
 
   try {
-    const users = await User.find({ _id: { $ne: managerId } }); // Exclude manager
+    const users = await User.find({ _id: { $ne: managerId } });
     res.json(users);
   } catch (err) {
     console.error('❌ Error fetching users:', err);
@@ -46,4 +50,3 @@ router.get('/users/all', async (req, res) => {
 });
 
 module.exports = router;
-
