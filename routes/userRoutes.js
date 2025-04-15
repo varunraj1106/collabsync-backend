@@ -9,10 +9,8 @@ router.get('/users/available/:managerId', async (req, res) => {
   try {
     const users = await User.find({
       managerId: null,
-      _id: { $ne: managerId },  // Exclude current manager
-      $expr: { $not: [{ $regexMatch: { input: "$_id", regex: /^MM/ } }] }  // Exclude manager-like IDs
+      _id: { $not: /^MM/, $ne: managerId } // Exclude managers and the requesting manager
     });
-
     res.json(users);
   } catch (err) {
     console.error('❌ Error fetching assignable users:', err);
@@ -26,7 +24,10 @@ router.patch('/users/assign', async (req, res) => {
 
   try {
     const employee = await User.findById(empId);
-    if (!employee) return res.status(404).json({ message: 'User not found' });
+
+    if (!employee) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
     employee.managerId = managerId;
     await employee.save();
@@ -45,7 +46,9 @@ router.patch('/users/unassign', async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(empId, { managerId: null }, { new: true });
 
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
     res.json({ message: 'Employee unassigned successfully', user });
   } catch (err) {
@@ -81,4 +84,3 @@ router.get('/users/all', async (req, res) => {
 });
 
 module.exports = router;
-
