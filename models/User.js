@@ -1,3 +1,4 @@
+// File: models/User.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
@@ -8,7 +9,12 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   branch: { type: String, required: true },
-  managerId: { type: String, default: null } // ✅ New field for manager assignment
+  role: {
+    type: String,
+    enum: ['manager', 'employee'],
+    default: 'employee'
+  },
+  managerId: { type: String, default: null } // ✅ Assigned manager's ID
 });
 
 // ✅ Hash password before saving
