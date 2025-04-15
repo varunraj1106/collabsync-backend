@@ -4,7 +4,11 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
 const connectDB = require('./config/db');
+
+// Load .env variables
+dotenv.config();
 
 // Load models
 const User = require('./models/User');
@@ -31,16 +35,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// ✅ Routes
+// ✅ Route files
 const taskRoutes = require('./routes/taskRoutes');
 const userRoutes = require('./routes/userRoutes');
 const groupRoutes = require('./routes/groupRoutes');
 
+// ✅ Use Routes
 app.use('/api/tasks', taskRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/groups', groupRoutes);
 
-// ✅ Login route
+// ✅ Login Route
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -51,7 +56,9 @@ app.post('/api/login', async (req, res) => {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) return res.status(401).json({ message: 'Invalid email or password' });
 
-    const token = jwt.sign({ id: user._id }, 'your_secret_key', { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'fallback_secret', {
+      expiresIn: '1h'
+    });
 
     res.status(200).json({ token, user });
   } catch (error) {
@@ -60,7 +67,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// ✅ Registration route
+// ✅ Registration Route
 app.post('/post', async (req, res) => {
   const { emp_id, name, department, email, password } = req.body;
 
@@ -105,8 +112,9 @@ app.get('/health', (req, res) => {
   res.send('✅ Server is healthy!');
 });
 
-// ✅ Start server
+// ✅ Start Server
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
 });
+
 
