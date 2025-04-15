@@ -7,7 +7,8 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  branch: { type: String, required: true }
+  branch: { type: String, required: true },
+  managerId: { type: String, default: null } // ✅ New field for manager assignment
 });
 
 // ✅ Hash password before saving
