@@ -43,21 +43,21 @@ app.get('/', (req, res) => {
   res.send("✅ Backend API is running and reachable.");
 });
 
-// ✅ Handle registration (now includes password)
+// ✅ Handle registration (emp_id used as primary key)
 app.post('/post', async (req, res) => {
   const { emp_id, name, department, email, password } = req.body;
 
   try {
-    if (!password) {
-      return res.status(400).json({ message: "Password is required." });
+    if (!emp_id || !name || !email || !department || !password) {
+      return res.status(400).json({ message: "All fields including password are required." });
     }
 
     const user = new User({
-      regd_no: emp_id,
+      _id: emp_id, // ✅ emp_id as MongoDB _id (primary key)
       name,
       email,
-      branch: department,
-      password  // ✅ Will be hashed via pre-save hook in User model
+      password,
+      branch: department
     });
 
     await user.save();
@@ -66,7 +66,11 @@ app.post('/post', async (req, res) => {
 
   } catch (error) {
     console.error("❌ Error saving user:", error);
-    res.status(500).json({ message: "❌ Server Error" });
+    if (error.code === 11000) {
+      res.status(409).json({ message: "User with this Employee ID or Email already exists." });
+    } else {
+      res.status(500).json({ message: "❌ Server Error" });
+    }
   }
 });
 
