@@ -13,7 +13,7 @@ const Task = require('./models/Task');
 const app = express();
 const port = process.env.PORT || 3019;
 
-// ✅ Enable CORS for all Vercel deployments
+// ✅ Enable CORS for Vercel deployments
 app.use(cors({
   origin: [
     'https://collabsync-frontend.vercel.app',
@@ -32,7 +32,7 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // ✅ Routes
 const taskRoutes = require('./routes/taskRoutes');
-const userRoutes = require('./routes/userRoutes'); // ✅ User management
+const userRoutes = require('./routes/userRoutes');
 app.use('/api/tasks', taskRoutes);
 app.use('/api', userRoutes);
 
@@ -65,7 +65,7 @@ app.post('/post', async (req, res) => {
       return res.status(400).json({ message: 'All fields are required.' });
     }
 
-    const role = emp_id.startsWith('MM') ? 'manager' : 'employee';
+    const role = emp_id.toUpperCase().startsWith("MM") ? 'manager' : 'employee';
 
     const user = new User({
       _id: emp_id,
@@ -105,5 +105,4 @@ app.get('/health', (req, res) => {
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
 });
-
 
