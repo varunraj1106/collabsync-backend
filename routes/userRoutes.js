@@ -1,9 +1,11 @@
+// File: routes/userRoutes.js
+
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 
 // ✅ GET users available for assignment (not assigned & not a manager)
-router.get('/users/available/:managerId', async (req, res) => {
+router.get('/available/:managerId', async (req, res) => {
   const { managerId } = req.params;
 
   try {
@@ -19,7 +21,7 @@ router.get('/users/available/:managerId', async (req, res) => {
 });
 
 // ✅ PATCH assign employee to a manager
-router.patch('/users/assign', async (req, res) => {
+router.patch('/assign', async (req, res) => {
   const { empId, managerId } = req.body;
 
   try {
@@ -40,7 +42,7 @@ router.patch('/users/assign', async (req, res) => {
 });
 
 // ✅ PATCH unassign employee from manager
-router.patch('/users/unassign', async (req, res) => {
+router.patch('/unassign', async (req, res) => {
   const { empId } = req.body;
 
   try {
@@ -58,7 +60,7 @@ router.patch('/users/unassign', async (req, res) => {
 });
 
 // ✅ GET employees already assigned to this manager
-router.get('/users/assigned/:managerId', async (req, res) => {
+router.get('/assigned/:managerId', async (req, res) => {
   const { managerId } = req.params;
 
   try {
@@ -71,7 +73,7 @@ router.get('/users/assigned/:managerId', async (req, res) => {
 });
 
 // ✅ GET all users except the current manager (for general dashboard listings)
-router.get('/users/all', async (req, res) => {
+router.get('/all', async (req, res) => {
   const managerId = req.query.managerId;
 
   try {
