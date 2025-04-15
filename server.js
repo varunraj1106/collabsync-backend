@@ -8,12 +8,15 @@ const connectDB = require('./config/db');
 const app = express();
 const port = process.env.PORT || 3019;
 
-// ✅ Enable CORS for Vercel frontend
+// ✅ Enable CORS for all Vercel frontend URLs
 app.use(cors({
-  origin: [
-    'https://collabsync-frontend.vercel.app',
-    'https://collabsync-frontend-git-main-varunraj-kadams-projects.vercel.app'
-  ],
+  origin: (origin, callback) => {
+    if (!origin || origin.includes("vercel.app")) {
+      callback(null, true); // Allow requests from Vercel frontend
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true
 }));
 
@@ -53,7 +56,7 @@ app.post('/post', async (req, res) => {
     }
 
     const user = new User({
-      _id: emp_id, // emp_id is primary key
+      _id: emp_id, // emp_id is used as primary key (_id)
       name,
       email,
       password,
