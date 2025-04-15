@@ -18,25 +18,31 @@ router.patch('/users/assign-manager', async (req, res) => {
   const { employeeId, managerId } = req.body;
 
   try {
-    const user = await User.findByIdAndUpdate(employeeId, { managerId }, { new: true });
+    const user = await User.findByIdAndUpdate(
+      employeeId,
+      { managerId },
+      { new: true }
+    );
+
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     res.json({ message: 'User assigned successfully', user });
   } catch (err) {
-    console.error('❌ Error assigning user:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Error assigning manager' });
   }
 });
 
+
 // GET users under a specific manager
-router.get('/users/under/:managerId', async (req, res) => {
+router.get('/users/all', async (req, res) => {
   try {
-    const users = await User.find({ managerId: req.params.managerId });
+    const users = await User.find(); // optionally exclude managers if needed
     res.json(users);
   } catch (err) {
-    console.error('❌ Error fetching users under manager:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error fetching users' });
   }
 });
+
+
 
 module.exports = router;
