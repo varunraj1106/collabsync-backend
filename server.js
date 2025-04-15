@@ -32,9 +32,9 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // ✅ Routes
 const taskRoutes = require('./routes/taskRoutes');
-const userRoutes = require('./routes/userRoutes'); // ✅ User management (assignments, filters)
+const userRoutes = require('./routes/userRoutes'); // ✅ User management
 app.use('/api/tasks', taskRoutes);
-app.use('/api', userRoutes); // ✅ Mount user routes
+app.use('/api', userRoutes);
 
 // ✅ Login route
 app.post('/api/login', async (req, res) => {
@@ -56,7 +56,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// ✅ Handle registration (emp_id used as _id)
+// ✅ Registration route
 app.post('/post', async (req, res) => {
   const { emp_id, name, department, email, password } = req.body;
 
@@ -65,12 +65,15 @@ app.post('/post', async (req, res) => {
       return res.status(400).json({ message: 'All fields are required.' });
     }
 
+    const role = emp_id.startsWith('MM') ? 'manager' : 'employee';
+
     const user = new User({
       _id: emp_id,
       name,
       email,
       password,
-      branch: department
+      branch: department,
+      role
     });
 
     await user.save();
@@ -102,4 +105,5 @@ app.get('/health', (req, res) => {
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
 });
+
 
