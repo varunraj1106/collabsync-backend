@@ -18,7 +18,7 @@ router.get('/users/available/:managerId', async (req, res) => {
   }
 });
 
-// ✅ POST assign employee to a manager
+// ✅ POST assign employee to a manager (simplified as requested)
 router.post('/users/assign', async (req, res) => {
   const { empId, managerId } = req.body;
 
@@ -27,10 +27,6 @@ router.post('/users/assign', async (req, res) => {
 
     if (!employee) {
       return res.status(404).json({ message: 'User not found' });
-    }
-
-    if (employee.managerId) {
-      return res.status(400).json({ message: 'User is already assigned to a manager' });
     }
 
     employee.managerId = managerId;
@@ -70,4 +66,3 @@ router.get('/users/all', async (req, res) => {
 });
 
 module.exports = router;
-
