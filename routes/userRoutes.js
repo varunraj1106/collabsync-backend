@@ -1,15 +1,16 @@
+// File: routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 
-// ✅ GET users available for assignment (not assigned & not a manager)
+// ✅ GET users available for assignment (not assigned & not a manager & not self)
 router.get('/users/available/:managerId', async (req, res) => {
   const { managerId } = req.params;
 
   try {
     const users = await User.find({
       managerId: null,
-      _id: { $not: /^MM/, $ne: managerId } // Exclude managers and the requesting manager
+      _id: { $not: /^MM/, $ne: managerId } // Exclude managers and self
     });
     res.json(users);
   } catch (err) {
@@ -18,7 +19,7 @@ router.get('/users/available/:managerId', async (req, res) => {
   }
 });
 
-// ✅ POST assign employee to a manager (simplified as requested)
+// ✅ POST assign employee to a manager
 router.post('/users/assign', async (req, res) => {
   const { empId, managerId } = req.body;
 
@@ -27,6 +28,11 @@ router.post('/users/assign', async (req, res) => {
 
     if (!employee) {
       return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Optional: Prevent reassigning if already assigned
+    if (employee.managerId) {
+      return res.status(400).json({ message: 'User is already assigned to a manager' });
     }
 
     employee.managerId = managerId;
@@ -52,7 +58,7 @@ router.get('/users/assigned/:managerId', async (req, res) => {
   }
 });
 
-// ✅ GET all users except the current manager (for general dashboard listings)
+// ✅ GET all users except the current manager (for dashboard usage)
 router.get('/users/all', async (req, res) => {
   const managerId = req.query.managerId;
 
