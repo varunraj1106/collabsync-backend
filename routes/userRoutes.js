@@ -9,7 +9,7 @@ router.get('/users/available/:managerId', async (req, res) => {
   try {
     const users = await User.find({
       managerId: null,
-      _id: { $not: /^MM/, $ne: managerId } // exclude managers and the requesting manager
+      _id: { $not: /^MM/, $ne: managerId } // Exclude managers and the requesting manager
     });
     res.json(users);
   } catch (err) {
