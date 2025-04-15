@@ -30,9 +30,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// ✅ Task routes
+// ✅ Routes
 const taskRoutes = require('./routes/taskRoutes');
+const userRoutes = require('./routes/userRoutes'); // ✅ Manager assignment & user routes
 app.use('/api/tasks', taskRoutes);
+app.use('/api', userRoutes); // ✅ Mount user routes
 
 // ✅ Login route
 app.post('/api/login', async (req, res) => {
