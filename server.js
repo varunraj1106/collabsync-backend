@@ -91,6 +91,9 @@ app.post('/post', async (req, res) => {
   }
 });
 
+const groupRoutes = require('./routes/groupRoutes');
+app.use('/api/groups', groupRoutes);
+
 // ✅ Root route
 app.get('/', (req, res) => {
   res.send('✅ Backend API is running and reachable.');
