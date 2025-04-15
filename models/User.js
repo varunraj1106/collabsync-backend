@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema({
     enum: ['manager', 'employee'],
     default: 'employee'
   },
-  managerId: { type: String, default: null } // ✅ Assigned manager's ID
+  managerId: { type: String, default: null }
 });
 
 // ✅ Hash password before saving
