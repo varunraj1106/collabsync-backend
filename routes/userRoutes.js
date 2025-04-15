@@ -18,7 +18,7 @@ router.get('/users/available/:managerId', async (req, res) => {
   }
 });
 
-// ✅ POST assign employee to manager
+// ✅ POST assign employee to a manager
 router.post('/users/assign', async (req, res) => {
   const { empId, managerId } = req.body;
 
@@ -56,7 +56,7 @@ router.get('/users/assigned/:managerId', async (req, res) => {
   }
 });
 
-// ✅ GET all users except the current manager (for general listing)
+// ✅ GET all users except the current manager (for general dashboard listings)
 router.get('/users/all', async (req, res) => {
   const managerId = req.query.managerId;
 
@@ -70,3 +70,4 @@ router.get('/users/all', async (req, res) => {
 });
 
 module.exports = router;
+
