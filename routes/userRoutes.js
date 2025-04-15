@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 
+// ✅ Assign a user to a manager (PATCH version)
 router.patch('/users/assign', async (req, res) => {
   const { empId, managerId } = req.body;
 
@@ -24,19 +25,16 @@ router.patch('/users/assign', async (req, res) => {
   }
 });
 
-
-// ✅ POST assign employee to a manager
+// ✅ Assign a user to a manager (POST version)
 router.post('/users/assign', async (req, res) => {
   const { empId, managerId } = req.body;
 
   try {
     const employee = await User.findById(empId);
-
     if (!employee) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Optional: Prevent reassigning if already assigned
     if (employee.managerId) {
       return res.status(400).json({ message: 'User is already assigned to a manager' });
     }
@@ -51,7 +49,7 @@ router.post('/users/assign', async (req, res) => {
   }
 });
 
-// ✅ GET employees already assigned to this manager
+// ✅ Get employees assigned to a manager
 router.get('/users/assigned/:managerId', async (req, res) => {
   const { managerId } = req.params;
 
@@ -64,7 +62,7 @@ router.get('/users/assigned/:managerId', async (req, res) => {
   }
 });
 
-// ✅ GET all users except the current manager (for dashboard usage)
+// ✅ Get all users except the current manager
 router.get('/users/all', async (req, res) => {
   const managerId = req.query.managerId;
 
@@ -78,3 +76,4 @@ router.get('/users/all', async (req, res) => {
 });
 
 module.exports = router;
+
