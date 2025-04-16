@@ -10,28 +10,28 @@ router.get('/available/:managerId', async (req, res) => {
 
   try {
     const users = await User.find({
-      managerId: null,
       role: 'employee',
-      _id: { $ne: managerId }
+      managerId: null,
+      _id: { $ne: managerId } // exclude self
     });
     res.json(users);
   } catch (err) {
-    console.error('❌ Error fetching assignable users:', err);
+    console.error('❌ Error fetching available users:', err);
     res.status(500).json({ message: 'Server error fetching available users' });
   }
 });
 
-// ✅ PATCH assign employee to a manager
+// ✅ PATCH: Assign employee to manager
 router.patch('/assign', async (req, res) => {
   const { empId, managerId } = req.body;
 
   try {
     const employee = await User.findById(empId);
     if (!employee) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'Employee not found' });
     }
 
-    employee.managerId = managerId.toString(); // Ensure string assignment
+    employee.managerId = managerId;
     await employee.save();
 
     res.status(200).json({ message: 'User assigned successfully', user: employee });
@@ -41,39 +41,39 @@ router.patch('/assign', async (req, res) => {
   }
 });
 
-// ✅ PATCH unassign employee from manager
+// ✅ PATCH: Unassign employee
 router.patch('/unassign', async (req, res) => {
   const { empId } = req.body;
 
   try {
-    const user = await User.findByIdAndUpdate(empId, { managerId: null }, { new: true });
-    if (!user) {
+    const updated = await User.findByIdAndUpdate(empId, { managerId: null }, { new: true });
+    if (!updated) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.json({ message: 'Employee unassigned successfully', user });
+    res.status(200).json({ message: 'Employee unassigned', user: updated });
   } catch (err) {
     console.error('❌ Error unassigning user:', err);
-    res.status(500).json({ message: 'Error unassigning user' });
+    res.status(500).json({ message: 'Error unassigning employee' });
   }
 });
 
-// ✅ GET employees already assigned to this manager
+// ✅ GET: Employees assigned to a manager
 router.get('/assigned/:managerId', async (req, res) => {
   const { managerId } = req.params;
 
   try {
-    const users = await User.find({ managerId: managerId.toString() });
-    res.json(users);
+    const employees = await User.find({ managerId });
+    res.json(employees);
   } catch (err) {
     console.error('❌ Error fetching assigned users:', err);
     res.status(500).json({ message: 'Server error fetching assigned users' });
   }
 });
 
-// ✅ GET all users except the current manager (for dashboard)
+// ✅ GET: All users except current manager (for dashboard listing etc.)
 router.get('/all', async (req, res) => {
-  const managerId = req.query.managerId;
+  const { managerId } = req.query;
 
   try {
     const users = await User.find({ _id: { $ne: managerId } });
