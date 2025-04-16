@@ -20,8 +20,8 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   const { name, members, managerId, status } = req.body;
 
-  if (!name || !Array.isArray(members) || !managerId) {
-    return res.status(400).json({ message: 'Group name, members, and managerId are required' });
+  if (!name || !Array.isArray(members) || !managerId || !status) {
+    return res.status(400).json({ message: 'Group name, members, managerId, and status are required' });
   }
 
   try {
@@ -38,8 +38,8 @@ router.post('/', async (req, res) => {
 router.put('/:groupId', async (req, res) => {
   const { name, members, status } = req.body;
 
-  if (!name || !Array.isArray(members)) {
-    return res.status(400).json({ message: 'Group name and members are required' });
+  if (!name || !Array.isArray(members) || !status) {
+    return res.status(400).json({ message: 'Group name, members, and status are required for update' });
   }
 
   try {
