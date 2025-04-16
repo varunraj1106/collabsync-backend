@@ -16,8 +16,9 @@ router.get('/available/:managerId', async (req, res) => {
     const users = await User.find({
       role: 'employee',
       managerId: null,
-      _id: { $ne: managerId } // exclude self
+      _id: { $ne: managerId } // Exclude the manager themselves
     });
+
     res.json(users);
   } catch (err) {
     console.error('❌ Error fetching available users:', err);
@@ -35,8 +36,13 @@ router.patch('/assign', async (req, res) => {
 
   try {
     const employee = await User.findById(empId);
+
     if (!employee) {
       return res.status(404).json({ message: 'Employee not found' });
+    }
+
+    if (employee.role !== 'employee') {
+      return res.status(400).json({ message: 'Only employees can be assigned to a manager' });
     }
 
     employee.managerId = managerId;
@@ -59,6 +65,7 @@ router.patch('/unassign', async (req, res) => {
 
   try {
     const updated = await User.findByIdAndUpdate(empId, { managerId: null }, { new: true });
+
     if (!updated) {
       return res.status(404).json({ message: 'User not found' });
     }
