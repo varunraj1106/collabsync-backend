@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const Task = require('../models/Task');
 
-// ✅ GET all tasks (admin/global access)
+// ✅ GET all tasks
 router.get('/', async (req, res) => {
   try {
     const tasks = await Task.find();
@@ -13,7 +13,17 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ✅ GET tasks by manager (Kanban view)
+// ✅ GET tasks by employee (NEW)
+router.get('/by-employee/:empId', async (req, res) => {
+  try {
+    const tasks = await Task.find({ assignee: req.params.empId });
+    res.json(tasks);
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching tasks for employee' });
+  }
+});
+
+// ✅ GET tasks by manager
 router.get('/by-manager/:managerId', async (req, res) => {
   try {
     const tasks = await Task.find({ managerId: req.params.managerId });
@@ -40,7 +50,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// ✅ PUT update task status or other fields
+// ✅ PUT update task
 router.put('/:id', async (req, res) => {
   try {
     const task = await Task.findByIdAndUpdate(
