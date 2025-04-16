@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
   _id: {
-    type: String, // Employee ID
+    type: String, // Employee ID or Manager ID like EMP001, MM101
     required: true,
     unique: true
   },
@@ -33,29 +33,27 @@ const userSchema = new mongoose.Schema({
   },
   managerId: {
     type: String,
-    default: null // Should always store as string for consistency
+    default: null
   }
 }, {
   timestamps: true
 });
 
-// ✅ Password hashing before saving
+// Password hashing
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
-
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-    return next();
+    next();
   } catch (err) {
-    return next(err);
+    next(err);
   }
 });
 
-// ✅ Method to compare passwords
+// Compare passwords
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-const User = mongoose.model('User', userSchema);
-module.exports = User;
+module.exports = mongoose.model('User', userSchema);
