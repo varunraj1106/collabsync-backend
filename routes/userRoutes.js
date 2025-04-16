@@ -12,7 +12,7 @@ router.get('/available/:managerId', async (req, res) => {
     const users = await User.find({
       managerId: null,
       role: 'employee',
-      _id: { $ne: managerId } // Exclude the manager himself/herself
+      _id: { $ne: managerId }
     });
     res.json(users);
   } catch (err) {
@@ -31,7 +31,7 @@ router.patch('/assign', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    employee.managerId = managerId;
+    employee.managerId = managerId.toString(); // Ensure string assignment
     await employee.save();
 
     res.status(200).json({ message: 'User assigned successfully', user: employee });
@@ -63,7 +63,7 @@ router.get('/assigned/:managerId', async (req, res) => {
   const { managerId } = req.params;
 
   try {
-    const users = await User.find({ managerId });
+    const users = await User.find({ managerId: managerId.toString() });
     res.json(users);
   } catch (err) {
     console.error('❌ Error fetching assigned users:', err);
