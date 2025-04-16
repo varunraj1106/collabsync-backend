@@ -4,9 +4,13 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 
-// ✅ GET users available for assignment (not assigned & not a manager)
+// ✅ GET: Users available for assignment (employees without a manager)
 router.get('/available/:managerId', async (req, res) => {
   const { managerId } = req.params;
+
+  if (!managerId) {
+    return res.status(400).json({ message: 'Manager ID is required' });
+  }
 
   try {
     const users = await User.find({
@@ -21,9 +25,13 @@ router.get('/available/:managerId', async (req, res) => {
   }
 });
 
-// ✅ PATCH: Assign employee to manager
+// ✅ PATCH: Assign employee to a manager
 router.patch('/assign', async (req, res) => {
   const { empId, managerId } = req.body;
+
+  if (!empId || !managerId) {
+    return res.status(400).json({ message: 'Both empId and managerId are required' });
+  }
 
   try {
     const employee = await User.findById(empId);
@@ -41,9 +49,13 @@ router.patch('/assign', async (req, res) => {
   }
 });
 
-// ✅ PATCH: Unassign employee
+// ✅ PATCH: Unassign employee from manager
 router.patch('/unassign', async (req, res) => {
   const { empId } = req.body;
+
+  if (!empId) {
+    return res.status(400).json({ message: 'empId is required' });
+  }
 
   try {
     const updated = await User.findByIdAndUpdate(empId, { managerId: null }, { new: true });
@@ -58,9 +70,13 @@ router.patch('/unassign', async (req, res) => {
   }
 });
 
-// ✅ GET: Employees assigned to a manager (only employees, not other managers)
+// ✅ GET: All employees assigned under a manager
 router.get('/assigned/:managerId', async (req, res) => {
   const { managerId } = req.params;
+
+  if (!managerId) {
+    return res.status(400).json({ message: 'Manager ID is required' });
+  }
 
   try {
     const employees = await User.find({ managerId, role: 'employee' });
@@ -71,7 +87,7 @@ router.get('/assigned/:managerId', async (req, res) => {
   }
 });
 
-// ✅ GET: All users except current manager (for dashboard listing etc.)
+// ✅ GET: All users excluding current manager (for dashboard listing etc.)
 router.get('/all', async (req, res) => {
   const { managerId } = req.query;
 
