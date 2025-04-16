@@ -1,9 +1,8 @@
-// routes/groupRoutes.js
 const express = require('express');
 const router = express.Router();
 const Group = require('../models/Group');
 
-// ✅ Get all groups (with optional filtering by manager)
+// ✅ GET: All groups or filtered by managerId
 router.get('/', async (req, res) => {
   const { managerId } = req.query;
 
@@ -17,7 +16,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ✅ Create a new group
+// ✅ POST: Create a new group
 router.post('/', async (req, res) => {
   const { name, members, managerId } = req.body;
 
@@ -35,7 +34,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// ✅ Update a group
+// ✅ PUT: Update group name or members
 router.put('/:groupId', async (req, res) => {
   const { name, members } = req.body;
 
@@ -61,13 +60,14 @@ router.put('/:groupId', async (req, res) => {
   }
 });
 
-// ✅ Delete a group
+// ✅ DELETE: Delete a group
 router.delete('/:groupId', async (req, res) => {
   try {
     const deletedGroup = await Group.findByIdAndDelete(req.params.groupId);
     if (!deletedGroup) {
       return res.status(404).json({ message: 'Group not found' });
     }
+
     res.status(200).json({ message: 'Group deleted', deletedGroup });
   } catch (err) {
     console.error('❌ Error deleting group:', err);
