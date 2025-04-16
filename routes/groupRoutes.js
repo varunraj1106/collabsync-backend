@@ -2,9 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const Group = require('../models/Group');
-const User = require('../models/User');
 
-// ✅ Get all groups for display
+// ✅ Get all groups (admin/global access)
 router.get('/', async (req, res) => {
   try {
     const groups = await Group.find();
@@ -15,11 +14,33 @@ router.get('/', async (req, res) => {
   }
 });
 
+// ✅ Get groups created by a specific manager
+router.get('/by-manager/:managerId', async (req, res) => {
+  const { managerId } = req.params;
+
+  if (!managerId) {
+    return res.status(400).json({ message: 'Manager ID is required' });
+  }
+
+  try {
+    const groups = await Group.find({ managerId });
+    res.json(groups);
+  } catch (err) {
+    console.error('❌ Error fetching groups for manager:', err);
+    res.status(500).json({ message: 'Server error fetching manager groups' });
+  }
+});
+
 // ✅ Create a new group
 router.post('/', async (req, res) => {
-  const { name, members } = req.body;
+  const { name, members, managerId } = req.body;
+
+  if (!name || !Array.isArray(members) || !managerId) {
+    return res.status(400).json({ message: 'Group name, members, and managerId are required' });
+  }
+
   try {
-    const group = new Group({ name, members });
+    const group = new Group({ name, members, managerId });
     await group.save();
     res.status(201).json(group);
   } catch (err) {
