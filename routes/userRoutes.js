@@ -58,12 +58,12 @@ router.patch('/unassign', async (req, res) => {
   }
 });
 
-// ✅ GET: Employees assigned to a manager
+// ✅ GET: Employees assigned to a manager (only employees, not other managers)
 router.get('/assigned/:managerId', async (req, res) => {
   const { managerId } = req.params;
 
   try {
-    const employees = await User.find({ managerId });
+    const employees = await User.find({ managerId, role: 'employee' });
     res.json(employees);
   } catch (err) {
     console.error('❌ Error fetching assigned users:', err);
