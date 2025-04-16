@@ -3,9 +3,16 @@ const express = require('express');
 const router = express.Router();
 const Group = require('../models/Group');
 
-// ✅ Get all groups (admin/global access)
+// ✅ Get all groups (global/admin access, if needed)
 router.get('/', async (req, res) => {
+  const { managerId } = req.query;
+
   try {
+    if (managerId) {
+      const groups = await Group.find({ managerId });
+      return res.json(groups);
+    }
+
     const groups = await Group.find();
     res.json(groups);
   } catch (err) {
@@ -14,7 +21,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ✅ Get groups created by a specific manager
+// ✅ Get groups by manager (legacy support if needed)
 router.get('/by-manager/:managerId', async (req, res) => {
   const { managerId } = req.params;
 
@@ -46,6 +53,32 @@ router.post('/', async (req, res) => {
   } catch (err) {
     console.error('❌ Error creating group:', err);
     res.status(500).json({ message: 'Server error creating group' });
+  }
+});
+
+// ✅ Update a group (Edit group name or members)
+router.put('/:groupId', async (req, res) => {
+  const { name, members } = req.body;
+
+  if (!name || !Array.isArray(members)) {
+    return res.status(400).json({ message: 'Group name and members are required for update' });
+  }
+
+  try {
+    const updated = await Group.findByIdAndUpdate(
+      req.params.groupId,
+      { name, members },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: 'Group not found' });
+    }
+
+    res.status(200).json(updated);
+  } catch (err) {
+    console.error('❌ Error updating group:', err);
+    res.status(500).json({ message: 'Server error updating group' });
   }
 });
 
