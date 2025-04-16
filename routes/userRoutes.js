@@ -4,39 +4,6 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 
-// ✅ POST: Register a new user (manager or employee)
-router.post('/post', async (req, res) => {
-  const { emp_id, name, department, email, password } = req.body;
-
-  if (!emp_id || !name || !email || !password || !department) {
-    return res.status(400).json({ message: 'All fields are required.' });
-  }
-
-  try {
-    const existingUser = await User.findById(emp_id);
-    if (existingUser) {
-      return res.status(409).json({ message: 'User with this ID already exists.' });
-    }
-
-    const role = emp_id.startsWith('MM') ? 'manager' : 'employee';
-
-    const newUser = new User({
-      _id: emp_id,
-      name,
-      email,
-      password,
-      branch: department,
-      role
-    });
-
-    await newUser.save();
-    res.status(201).json({ message: 'User registered successfully', _id: newUser._id });
-  } catch (err) {
-    console.error('❌ Registration error:', err);
-    res.status(500).json({ message: 'Server error during registration' });
-  }
-});
-
 // ✅ GET: Users available for assignment (employees without a manager)
 router.get('/available/:managerId', async (req, res) => {
   const { managerId } = req.params;
@@ -49,9 +16,8 @@ router.get('/available/:managerId', async (req, res) => {
     const users = await User.find({
       role: 'employee',
       managerId: null,
-      _id: { $ne: managerId }
+      _id: { $ne: managerId } // exclude self
     });
-
     res.json(users);
   } catch (err) {
     console.error('❌ Error fetching available users:', err);
@@ -69,13 +35,8 @@ router.patch('/assign', async (req, res) => {
 
   try {
     const employee = await User.findById(empId);
-
     if (!employee) {
       return res.status(404).json({ message: 'Employee not found' });
-    }
-
-    if (employee.role !== 'employee') {
-      return res.status(400).json({ message: 'Only employees can be assigned to a manager' });
     }
 
     employee.managerId = managerId;
@@ -98,7 +59,6 @@ router.patch('/unassign', async (req, res) => {
 
   try {
     const updated = await User.findByIdAndUpdate(empId, { managerId: null }, { new: true });
-
     if (!updated) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -127,7 +87,7 @@ router.get('/assigned/:managerId', async (req, res) => {
   }
 });
 
-// ✅ GET: All users excluding current manager
+// ✅ GET: All users excluding current manager (for dashboard listing etc.)
 router.get('/all', async (req, res) => {
   const { managerId } = req.query;
 
