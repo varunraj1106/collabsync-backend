@@ -16,16 +16,16 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ✅ POST: Create a new group
+// ✅ POST: Create a new group with optional status
 router.post('/', async (req, res) => {
-  const { name, members, managerId } = req.body;
+  const { name, members, managerId, status } = req.body;
 
   if (!name || !Array.isArray(members) || !managerId) {
     return res.status(400).json({ message: 'Group name, members, and managerId are required' });
   }
 
   try {
-    const newGroup = new Group({ name, members, managerId });
+    const newGroup = new Group({ name, members, managerId, status });
     await newGroup.save();
     res.status(201).json(newGroup);
   } catch (err) {
@@ -34,9 +34,9 @@ router.post('/', async (req, res) => {
   }
 });
 
-// ✅ PUT: Update group name or members
+// ✅ PUT: Update group name, members, and status
 router.put('/:groupId', async (req, res) => {
-  const { name, members } = req.body;
+  const { name, members, status } = req.body;
 
   if (!name || !Array.isArray(members)) {
     return res.status(400).json({ message: 'Group name and members are required' });
@@ -45,7 +45,7 @@ router.put('/:groupId', async (req, res) => {
   try {
     const updatedGroup = await Group.findByIdAndUpdate(
       req.params.groupId,
-      { name, members },
+      { name, members, status },
       { new: true }
     );
 
