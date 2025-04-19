@@ -114,4 +114,20 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// ✅ GET a single user by ID (for profile info)
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    res.json(user);
+  } catch (error) {
+    console.error("❌ Error fetching user by ID:", error);
+    res.status(500).json({ message: 'Server error fetching user' });
+  }
+});
+
+
 module.exports = router;
