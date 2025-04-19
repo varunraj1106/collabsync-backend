@@ -119,7 +119,7 @@ router.get('/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
-    const user = await User.findById(id);
+    const user = await User.findOne({ _id: id }); // <== ✅ Fixed here
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     res.json(user);
@@ -128,6 +128,5 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ message: 'Server error fetching user' });
   }
 });
-
 
 module.exports = router;
